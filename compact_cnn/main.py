@@ -1,6 +1,6 @@
 # Kapre version >0.0.2.3 (float32->floatx fixed version)
 from argparse import Namespace
-import models as my_models
+import compact_cnn.models as my_models
 from keras import backend as K
 import pdb
 import numpy as np
@@ -12,7 +12,7 @@ def main(mode, conv_until=None):
     # This is it. use melgram, up to 6000 (SR is assumed to be 12000, see model.py),
     # do decibel scaling
     assert mode in ('feature', 'tagger')
-    if mode == 'feature':
+    if mode == 'tagger':
         last_layer = False
     else:
         last_layer = True
@@ -59,10 +59,36 @@ if __name__ == '__main__':
     # source for example
     src = np.load('1100103.clip.npy')  # (348000, )
     src = src[np.newaxis, :]  # (1, 348000)
-    src = np.array([src]) # (1, 1, 348000) to make it batch
+    src = np.array([src])  # (1, 1, 348000) to make it batch
 
     #
-    feat = [md.predict(src)[0] for md in models] # get 5 features, each is 32-dim
-    feat = np.array(feat).reshape(-1) # (160, ) (flatten)
+    feat = [models[0].predict(src)[0]]
+    # feat = [md.predict(src)[0] for md in models] # get 5 features, each is 32-dim
+    feat = np.array(feat).reshape(-1)  # (160, ) (flatten)
     # now use this feature for whatever MIR tasks.
+
+tags = ['rock', 'pop', 'alternative', 'indie', 'electronic',
+        'female vocalists', 'dance', '00s', 'alternative rock', 'jazz',
+        'beautiful', 'metal', 'chillout', 'male vocalists',
+        'classic rock', 'soul', 'indie rock', 'Mellow', 'electronica',
+        '80s', 'folk', '90s', 'chill', 'instrumental', 'punk',
+        'oldies', 'blues', 'hard rock', 'ambient', 'acoustic',
+        'experimental', 'female vocalist', 'guitar', 'Hip-Hop',
+        '70s', 'party', 'country', 'easy listening',
+        'sexy', 'catchy', 'funk', 'electro', 'heavy metal',
+        'Progressive rock', '60s', 'rnb', 'indie pop',
+        'sad', 'House', 'happy']
+
+print('Printing top-10 tags for each track...')
+
+
+def sort_result(tags, preds):
+    result = zip(tags, preds)
+    sorted_result = sorted(result, key=lambda x: x[1], reverse=True)
+    return [(name, '%5.3f' % score) for name, score in sorted_result]
+
+sorted_result = sort_result(tags, feat)
+print(sorted_result[:5])
+print(sorted_result[5:10])
+print(' ')
 

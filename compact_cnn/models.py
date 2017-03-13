@@ -84,7 +84,7 @@ def get_convBNeluMPdrop(num_conv_layers, nums_feat_maps,
     if conv_until is None:
         conv_until = num_conv_layers  # end-inclusive.
 
-    for conv_idx in xrange(num_conv_layers):
+    for conv_idx in range(num_conv_layers):
         # add conv layer
         if not input_shape_specified:
             model.add(Convolution2D(nums_feat_maps[conv_idx],
